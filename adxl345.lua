@@ -1,14 +1,14 @@
 id=0 --Microcontroller's ID (Master) 
-sda=5 
+sda=7 
 scl=6 
-dev_addr=0x1D --Address of accelerometer (Slave)
+dev_addr=0x53 --Address of accelerometer (Slave)
 
 -- initialize i2c
 i2c.setup(id,sda,scl,i2c.SLOW)
 
 i2c.start(id)
 i2c.address(id, dev_addr,i2c.TRANSMITTER)
-print(string.byte(read_reg(id,0x00)))
+
 i2c.write(id,0x2D) --Power control register
 i2c.write(id,0x00) --Activate standby mode to configure device
 i2c.stop(id)
@@ -44,20 +44,12 @@ function read_reg(reg_addr)
 end
 
 function adxl()
-  X0 = read_reg(0x32)
-  X1 = read_reg(0x33)
-  Y0 = read_reg(0x34)
-  Y1 = read_reg(0x35)
-  Z0 = read_reg(0x36)
-  Z1 = read_reg(0x37)
-
-  --Combine 2 bytes to get a single 16bit number
-  Xtemp = bit.lshift(string.byte(X1), 8)
-  Xaxis = bit.bor(Xtemp, string.byte(X0))
-  Ytemp = bit.lshift(string.byte(Y1), 8)
-  Yaxis = bit.bor(Ytemp, string.byte(Y0))
-  Ztemp = bit.lshift(string.byte(Z1), 8)
-  Zaxis = bit.bor(Ztemp, string.byte(Z0))  
+  local Xaxis = bit.lshift(string.byte(read_reg(0x32)), 8)
+  Xaxis = bit.bor(Xaxis, string.byte(read_reg(0x33)))
+  local Yaxis = bit.lshift(string.byte(read_reg(0x34)), 8)
+  Yaxis = bit.bor(Yaxis, string.byte(read_reg(0x35)))
+  local Zaxis = bit.lshift(string.byte(read_reg(0x36)), 8)
+  Zaxis = bit.bor(Zaxis, string.byte(read_reg(0x37)))  
 
   --Clear 3 sign extended MSB bits
   Xaxis=bit.band(0x1FFF, Xaxis)
@@ -75,12 +67,17 @@ function adxl()
   if Zn==4096 then Zaxis=Zaxis-8193 end
 
   --4mg/LSB, multiply by 4, should divide by 1000
-  Xaxis=Xaxis*4
-  Yaxis=Yaxis*4
-  Zaxis=Zaxis*4
+  Xaxis=Xaxis*4 + 5650
+  Yaxis=Yaxis*4 + 6000
+  Zaxis=Zaxis*4 + 4500
 
   print(Xaxis)
   print(Yaxis)
   print(Zaxis)
-
 end
+
+tmr.alarm(0, 500, tmr.ALARM_AUTO, function()
+   print("----")
+   adxl()
+end)
+
