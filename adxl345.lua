@@ -1,83 +1,93 @@
-id=0 --Microcontroller's ID (Master) 
+local M, module = {}, ...
+
+id=0
 sda=7 
 scl=6 
-dev_addr=0x53 --Address of accelerometer (Slave)
+dev_addr=0x53 
 
--- initialize i2c
-i2c.setup(id,sda,scl,i2c.SLOW)
+function M.enable()
+    --package.loaded[module]=nil
+    
+    i2c.setup(id,sda,scl,i2c.SLOW)
+    
+    i2c.start(id)
+    i2c.address(id, dev_addr,i2c.TRANSMITTER)
+    
+    i2c.write(id,0x2D)
+    i2c.write(id,0x00) 
+    i2c.stop(id)
+    
+    i2c.start(id)
+    i2c.address(id, dev_addr,i2c.TRANSMITTER)
+    i2c.write(id,0x31)
+    i2c.write(id,0x0B) 
+    i2c.stop(id)
+    
+    i2c.start(id)
+    i2c.address(id, dev_addr,i2c.TRANSMITTER)
+    i2c.write(id,0x2C)
+    i2c.write(id,0x0A)
+    i2c.stop(id)
+    
+    i2c.start(id)
+    i2c.address(id, dev_addr,i2c.TRANSMITTER)
+    i2c.write(id,0x2D)
+    i2c.write(id,0x08) 
+    i2c.stop(id)
+end
 
-i2c.start(id)
-i2c.address(id, dev_addr,i2c.TRANSMITTER)
-
-i2c.write(id,0x2D) --Power control register
-i2c.write(id,0x00) --Activate standby mode to configure device
-i2c.stop(id)
-
-i2c.start(id)
-i2c.address(id, dev_addr,i2c.TRANSMITTER)
-i2c.write(id,0x31) --Data format register
-i2c.write(id,0x0B) --Set g range to 16, Full res
-i2c.stop(id)
-
-i2c.start(id)
-i2c.address(id, dev_addr,i2c.TRANSMITTER)
-i2c.write(id,0x2C) --BW rate register
-i2c.write(id,0x0A) --Data rate 100Hz
-i2c.stop(id)
-
-i2c.start(id)
-i2c.address(id, dev_addr,i2c.TRANSMITTER)
-i2c.write(id,0x2D) --Power control register
-i2c.write(id,0x08) --Activate measure mode
-i2c.stop(id)
+function M.disable()  
+    package.loaded[module]=nil
+      
+    i2c.start(id)
+    i2c.address(id, dev_addr,i2c.TRANSMITTER)
+    
+    i2c.write(id,0x2D)
+    i2c.write(id,0x00) 
+    i2c.stop(id)
+end
 
 -- user defined function: read from reg_addr content of dev_addr
 function read_reg(reg_addr)
-  i2c.start(id)
-  i2c.address(id, dev_addr,i2c.TRANSMITTER)
-  i2c.write(id,reg_addr)
-  i2c.start(id)
-  i2c.address(id, dev_addr,i2c.RECEIVER)
-  c=i2c.read(id,1)
-  i2c.stop(id)
-  return c
+    i2c.start(id)
+    i2c.address(id, dev_addr,i2c.TRANSMITTER)
+    i2c.write(id,reg_addr)
+    i2c.start(id)
+    i2c.address(id, dev_addr,i2c.RECEIVER)
+    c=i2c.read(id,1)
+    i2c.stop(id)
+    return c
 end
 
-function adxl()
-  local Xaxis = bit.lshift(string.byte(read_reg(0x32)), 8)
-  Xaxis = bit.bor(Xaxis, string.byte(read_reg(0x33)))
-  local Yaxis = bit.lshift(string.byte(read_reg(0x34)), 8)
-  Yaxis = bit.bor(Yaxis, string.byte(read_reg(0x35)))
-  local Zaxis = bit.lshift(string.byte(read_reg(0x36)), 8)
-  Zaxis = bit.bor(Zaxis, string.byte(read_reg(0x37)))  
-
-  --Clear 3 sign extended MSB bits
-  Xaxis=bit.band(0x1FFF, Xaxis)
-  Yaxis=bit.band(0x1FFF, Yaxis)
-  Zaxis=bit.band(0x1FFF, Zaxis)
-
-  --Check if number is negative
-  Xn=bit.band(0x1000, Xaxis)
-  Yn=bit.band(0x1000, Yaxis)
-  Zn=bit.band(0x1000, Zaxis)
-
-  --If negative, convert twos complement number to decimal(-8193=-8192-1)
-  if Xn==4096 then Xaxis=Xaxis-8193 end
-  if Yn==4096 then Yaxis=Yaxis-8193 end
-  if Zn==4096 then Zaxis=Zaxis-8193 end
-
-  --4mg/LSB, multiply by 4, should divide by 1000
-  Xaxis=Xaxis*4 + 5650
-  Yaxis=Yaxis*4 + 6000
-  Zaxis=Zaxis*4 + 4500
-
-  print(Xaxis)
-  print(Yaxis)
-  print(Zaxis)
+function positions()      
+    local Xaxis = bit.lshift(string.byte(read_reg(0x33)), 8)
+    Xaxis = bit.bor(Xaxis, string.byte(read_reg(0x32)))
+    local Yaxis = bit.lshift(string.byte(read_reg(0x35)), 8)
+    Yaxis = bit.bor(Yaxis, string.byte(read_reg(0x34)))
+    local Zaxis = bit.lshift(string.byte(read_reg(0x37)), 8)
+    Zaxis = bit.bor(Zaxis, string.byte(read_reg(0x36)))  
+    
+    --Clear 3 sign extended MSB bits
+    Xaxis=bit.band(0x1FFF, Xaxis)
+    Yaxis=bit.band(0x1FFF, Yaxis)
+    Zaxis=bit.band(0x1FFF, Zaxis)
+    
+    if bit.isset(Xaxis, 12) then Xaxis=Xaxis-8193 end
+    if bit.isset(Yaxis, 12) then Yaxis=Yaxis-8193 end
+    if bit.isset(Zaxis, 12) then Zaxis=Zaxis-8193 end
+    
+    --4mg/LSB, multiply by 4, should divide by 1000
+    Xaxis=Xaxis*4 + 5650
+    Yaxis=Yaxis*4 + 5960
+    Zaxis=Zaxis*4 + 4500
+    
+    return {["X"] = Xaxis, ["Y"] = Yaxis, ["Z"] = Zaxis}
 end
 
-tmr.alarm(0, 500, tmr.ALARM_AUTO, function()
-   print("----")
-   adxl()
-end)
+function M.angle() -- approx angle +90 / -90
+    local val = positions()
+    local Y = math.max(math.min(val["Y"], 990), -990)
+    return Y / -11
+end
+
 
