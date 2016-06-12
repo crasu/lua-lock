@@ -6,7 +6,7 @@ scl=6
 dev_addr=0x53 
 
 function M.enable()
-    --package.loaded[module]=nil
+    package.loaded[module]=nil
     
     i2c.setup(id,sda,scl,i2c.SLOW)
     
@@ -85,9 +85,11 @@ function positions()
 end
 
 function M.angle() -- approx angle +90 / -90
+    package.loaded[module]=nil
+    
     local val = positions()
     local Y = math.max(math.min(val["Y"], 990), -990)
     return Y / -11
 end
 
-
+return M
