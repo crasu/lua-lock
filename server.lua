@@ -53,43 +53,25 @@ end
 init()
 
 srv=net.createServer(net.TCP)
-srv:listen(80,function(conn)
-    conn:on("receive", function(client,request)
-        local buf = "";
-        local _, _, method, path, vars = string.find(request, "([A-Z]+) (.+)?(.+) HTTP")
-        if(method == nil)then
-            _, _, method, path = string.find(request, "([A-Z]+) (.+) HTTP")
-        end
-        local _GET = {}
-        if (vars ~= nil)then
-            for k, v in string.gmatch(vars, "(%w+)=(%w+)&*") do
-                _GET[k] = v
-            end
-        end
-        buf = buf.."<h1> ESP8266 Web Server</h1>";
-        buf = buf.."<p>Door: <a href=\"?cmd=CLOSE\"><button>Close</button></a>&nbsp;<a href=\"?cmd=OPEN\"><button>Open</button></a></p>";
-        buf = buf.."<p>Tune: <a href=\"?cmd=TUNECLOSE\"><button>Close</button></a>&nbsp;<a href=\"?cmd=TUNEOPEN\"><button>Open</button></a></p>";
-        buf = buf.."<p>Sleep <a href=\"?cmd=MS\"><button>Modem Sleep</button></a>&nbsp;<a href=\"?cmd=LS\"><button>Light Sleep</button></a>&nbsp;<a href=\"?cmd=DS\"><button>Deep Sleep</button></a></p>";
-        buf = buf.."<p>ADC: ".. adc.read(0) .. "</p>"
-        local _on,_off = "",""
-        if(_GET.cmd == "CLOSE")then
+srv:listen(80, function(conn)
+    conn:on("receive", function(client, request)
+        local cmd = require("connection").handle(client, request)
+        collectgarbage()
+        if(cmd == "CLOSE")then
             turn(1800, gpio.HIGH)
-        elseif(_GET.cmd == "OPEN")then
+        elseif(cmd == "OPEN")then
             turn(1400, gpio.LOW)
-        elseif(_GET.cmd == "TUNECLOSE")then
+        elseif(cmd == "TUNECLOSE")then
             turn(150, gpio.HIGH)
-        elseif(_GET.cmd == "TUNEOPEN")then
+        elseif(cmd == "TUNEOPEN")then
             turn(150, gpio.LOW)
-        elseif(_GET.cmd == "MS")then
+        elseif(cmd == "MS")then
             wifi.sleeptype(wifi.MODEM_SLEEP)
-        elseif(_GET.cmd == "LS")then
+        elseif(cmd == "LS")then
             wifi.sleeptype(wifi.LIGHT_SLEEP)
-        elseif(_GET.cmd == "DS")then
+        elseif(cmd == "DS")then
             wifi.sleeptype(node.dsleep(0))
         end
-        client:send(buf);
-        client:close();
-        collectgarbage();
     end)
 end)
 
