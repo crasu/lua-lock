@@ -1,0 +1,11 @@
+local module = {}, ...
+
+return {
+    SSID = "xxx",
+    PASS = "xxx",
+    SDA_PIN = 5,
+    SCL_PIN = 6,
+    ENABLE_PIN = 2,
+    DIR_PIN = 1,
+    SLEEP_PIN = 7
+}

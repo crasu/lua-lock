@@ -1,22 +1,13 @@
-ENABLE = 2
-DIR = 1
-SLEEP = 7
-HARD_ADC_LIMIT = 160 -- 3200 mA
-SOFT_ADC_LIMIT = 120 -- 2400 mA
-HARD_TIME = 150 * 1000 -- 150 ms
 
-dofile("config.lua")
 
 function init()
+    local config = require("config")
     wifi.setmode(wifi.STATION)
-    wifi.sta.config(SSID, PASS)
+    wifi.sta.config(config.SSID, config.PASS)
     wifi.sleeptype(wifi.LIGHT_SLEEP)
     print(wifi.sta.getip())
 
-    gpio.mode(ENABLE, gpio.OUTPUT)
-    gpio.mode(DIR, gpio.OUTPUT)
-    gpio.mode(SLEEP, gpio.OUTPUT)
-    gpio.write(SLEEP, gpio.LOW)
+    require("motor").init()
 end
 
 function turn(duration, direction)
@@ -57,14 +48,15 @@ srv:listen(80, function(conn)
     conn:on("receive", function(client, request)
         local cmd = require("connection").handle(client, request)
         collectgarbage()
+        local motor = require("motor")
         if(cmd == "CLOSE")then
-            turn(1800, gpio.HIGH)
+            motor.turn(1800, gpio.HIGH)
         elseif(cmd == "OPEN")then
-            turn(1400, gpio.LOW)
+            motor.turn(1400, gpio.LOW)
         elseif(cmd == "TUNECLOSE")then
-            turn(150, gpio.HIGH)
+            motor.turn(150, gpio.HIGH)
         elseif(cmd == "TUNEOPEN")then
-            turn(150, gpio.LOW)
+            motor.turn(150, gpio.LOW)
         elseif(cmd == "MS")then
             wifi.sleeptype(wifi.MODEM_SLEEP)
         elseif(cmd == "LS")then
