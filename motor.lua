@@ -6,6 +6,7 @@ local SLEEP = config.SLEEP_PIN
 local HARD_ADC_LIMIT = 160 -- 3200 mA
 local SOFT_ADC_LIMIT = 120 -- 2400 mA
 local HARD_TIME = 150 * 1000 -- 150 ms
+local MAX_DURATION = 4000 * 1000 -- 4000 ms
 
 function M.init()
     package.loaded[module]=nil
@@ -16,6 +17,78 @@ function M.init()
     gpio.write(SLEEP, gpio.LOW)
 end
 
+function checkAngle(target_angle)
+    local current_angle=require("adxl").angle()
+    print("current angle " .. current_angle)
+    if math.abs(target_angle - current_angle) < 5 then
+        return false, false
+    end
+
+    return true, (target_angle - current_angle) > 0 -- returns: Enable, Direction
+end
+
+function set_direction(direction)
+    if direction then 
+        gpio.write(DIR, gpio.HIGH)
+    else
+        gpio.write(DIR, gpio.LOW)  
+    end
+end
+
+function M.turn_to(angle)
+    package.loaded[module]=nil
+    require("adxl").enable()
+
+    local enable, direction = checkAngle(angle)
+    if not(enable) then return end 
+    
+    gpio.write(SLEEP, gpio.HIGH)
+    gpio.write(ENABLE, gpio.HIGH)
+    set_direction(direction)
+     
+    local start_time = tmr.now()
+    print("start_time " .. start_time)
+    tmr.alarm(0, 200, tmr.ALARM_AUTO, function ()
+        local delta = bit.band(0x7ffffffe, tmr.now() - start_time)
+
+        adc_value = adc.read(0)
+        print("ADC " .. adc_value .. " delta " .. delta)
+
+        local stop = false
+        if adc_value > HARD_ADC_LIMIT then
+            print("adc stop")
+            stop = true
+        end
+        if adc_value > SOFT_ADC_LIMIT and delta > M.HARD_TIME then
+            print("adc + delta stop")
+            stop = true
+        end
+        if delta > MAX_DURATION then
+            print("delta stop max duration reaced")
+            stop = true
+        end
+
+        enable, direction = checkAngle(angle)
+        set_direction(direction)
+        if not(enable) then
+            print("target angle reached")
+            stop = true
+        end 
+        
+        if stop then
+            print("motor stopped")
+            gpio.write(ENABLE, gpio.LOW)
+            gpio.write(DIR, gpio.LOW)
+            gpio.write(SLEEP, gpio.LOW)
+            print("motor stopped")
+            
+            require("adxl").disable()
+
+            tmr.unregister(0)
+        end
+    end)
+end
+
 function M.turn(duration, direction)
     package.loaded[module]=nil
     
@@ -24,11 +97,10 @@ function M.turn(duration, direction)
     gpio.write(DIR, direction)
 
     local start_time = tmr.now()
-    local adc_stop = false
     print("start_time " .. start_time)
     repeat
         tmr.delay(50)
-        delta = bit.band(0x7fffffff, tmr.now() - start_time)
+        local delta = bit.band(0x7ffffffe, tmr.now() - start_time)
 
         adc_value = adc.read(0)
         print("ADC " .. adc_value .. " delta " .. delta)

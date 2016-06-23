@@ -1,5 +1,3 @@
-
-
 function init()
     local config = require("config")
     wifi.setmode(wifi.STATION)
@@ -8,37 +6,6 @@ function init()
     print(wifi.sta.getip())
 
     require("motor").init()
-end
-
-function turn(duration, direction)
-    gpio.write(SLEEP, gpio.HIGH)
-    gpio.write(ENABLE, gpio.HIGH)
-    gpio.write(DIR, direction)
-
-    local start_time = tmr.now()
-    local adc_stop = false
-    print("start_time " .. start_time)
-    repeat
-        tmr.delay(50)
-        delta = tmr.now() - start_time
-        if delta < 0 then delta = delta + 2147483647 end;
-
-        adc_value = adc.read(0)
-        print("ADC " .. adc_value .. " delta " .. delta)
-
-        if adc_value > HARD_ADC_LIMIT then
-            print("adc stop")
-            break
-        end
-        if adc_value > SOFT_ADC_LIMIT and delta > HARD_TIME then
-            print("adc + delta stop")
-            break
-        end
-    until delta > duration * 1000
-
-    gpio.write(ENABLE, gpio.LOW)
-    gpio.write(DIR, gpio.LOW)
-    gpio.write(SLEEP, gpio.LOW)
 end
 
 init()
@@ -64,6 +31,7 @@ srv:listen(80, function(conn)
         elseif(cmd == "DS")then
             wifi.sleeptype(node.dsleep(0))
         end
+        collectgarbage()
     end)
 end)
 

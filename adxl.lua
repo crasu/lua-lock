@@ -1,13 +1,12 @@
 local M, module = {}, ...
 
 local id=0
-M.dev_addr=0x53
+local dev_addr=0x53
 
 function M.enable()
     local config = require("config")
     local sda = config.SDA_PIN
     local scl = config.SCL_PIN
-    local dev_addr = M.dev_addr
     package.loaded[module]=nil
     
     i2c.setup(id, sda, scl, i2c.SLOW)
@@ -39,9 +38,6 @@ function M.enable()
 end
 
 function M.disable()  
-    local id = M.id
-    local dev_addr = M.dev_addr
-      
     package.loaded[module]=nil
 
     i2c.start(id)
@@ -52,10 +48,7 @@ function M.disable()
     i2c.stop(id)
 end
 
--- user defined function: read from reg_addr content of dev_addr
 function read_reg(reg_addr)
-    local dev_addr = M.dev_addr
-    
     i2c.start(id)
     i2c.address(id, dev_addr,i2c.TRANSMITTER)
     i2c.write(id,reg_addr)
