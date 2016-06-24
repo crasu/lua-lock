@@ -17,9 +17,11 @@ srv:listen(80, function(conn)
         collectgarbage()
         local motor = require("motor")
         if(cmd == "CLOSE")then
-            motor.turn(1800, gpio.HIGH)
+            motor.turn_to(-90)
         elseif(cmd == "OPEN")then
-            motor.turn(1400, gpio.LOW)
+            motor.turn_to(0)
+        elseif(cmd == "TILT")then
+            motor.turn_to(90)
         elseif(cmd == "TUNECLOSE")then
             motor.turn(150, gpio.HIGH)
         elseif(cmd == "TUNEOPEN")then

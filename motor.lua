@@ -14,7 +14,7 @@ function M.init()
     gpio.mode(ENABLE, gpio.OUTPUT)
     gpio.mode(DIR, gpio.OUTPUT)
     gpio.mode(SLEEP, gpio.OUTPUT)
-    gpio.write(SLEEP, gpio.LOW)
+    gpio.write(SLEEP, gpio.LOW)   
 end
 
 function checkAngle(target_angle)
@@ -64,19 +64,18 @@ function M.turn_to(angle)
             stop = true
         end
         if delta > MAX_DURATION then
-            print("delta stop max duration reaced")
+            print("delta stop max duration")
             stop = true
         end
 
         enable, direction = checkAngle(angle)
         set_direction(direction)
         if not(enable) then
-            print("target angle reached")
+            print("target angle")
             stop = true
         end 
         
         if stop then
-            print("motor stopped")
             gpio.write(ENABLE, gpio.LOW)
             gpio.write(DIR, gpio.LOW)
             gpio.write(SLEEP, gpio.LOW)
