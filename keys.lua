@@ -22,14 +22,11 @@ function M.init()
     package.loaded[module]=nil
     local OPEN = require("config").OPEN_PIN
     local CLOSE = require("config").CLOSE_PIN
-    local TILT = require("config").TILT_PIN
-
-    gpio.mode(0, gpio.OUTPUT) -- TODO remove later
-    gpio.write(0, gpio.LOW) -- TODO remove later
+    --local TILT = require("config").TILT_PIN
     
     gpio.mode(OPEN, gpio.INT, gpio.PULLUP)
     gpio.mode(CLOSE, gpio.INT, gpio.PULLUP)
-    gpio.mode(TILT, gpio.INT, gpio.PULLUP)
+    --gpio.mode(TILT, gpio.INT, gpio.PULLUP)
 
     gpio.trig(OPEN, "down", function ()
         if not(lock()) then return end
@@ -44,12 +41,12 @@ function M.init()
         require("motor").turn_to(-90)
     end)
     
-    gpio.trig(TILT, "up", function ()
+    --[[gpio.trig(TILT, "up", function ()
         if not(lock()) then return end
         
         print("tilt triggered")
         require("motor").turn_to(90)
-    end)
+    end)]]--
     
 end
 

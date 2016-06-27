@@ -2,7 +2,7 @@ function init()
     local config = require("config")
     wifi.setmode(wifi.STATION)
     wifi.sta.config(config.SSID, config.PASS)
-    wifi.sleeptype(wifi.LIGHT_SLEEP)
+    --wifi.sleeptype(wifi.LIGHT_SLEEP)
     print(wifi.sta.getip())
 
     require("motor").init()
@@ -17,11 +17,11 @@ srv:listen(80, function(conn)
         collectgarbage()
         local motor = require("motor")
         if(cmd == "CLOSE")then
-            motor.turn_to(-90)
+            motor.turn_to(90)
         elseif(cmd == "OPEN")then
             motor.turn_to(0)
         elseif(cmd == "TILT")then
-            motor.turn_to(90)
+            motor.turn_to(-90)
         elseif(cmd == "TUNECLOSE")then
             motor.turn(150, gpio.HIGH)
         elseif(cmd == "TUNEOPEN")then

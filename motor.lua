@@ -6,7 +6,7 @@ local SLEEP = config.SLEEP_PIN
 local HARD_ADC_LIMIT = 160 -- 3200 mA
 local SOFT_ADC_LIMIT = 120 -- 2400 mA
 local HARD_TIME = 150 * 1000 -- 150 ms
-local MAX_DURATION = 4000 * 1000 -- 4000 ms
+local MAX_DURATION = 2000 * 1000 -- 2000 ms
 
 function M.init()
     package.loaded[module]=nil
@@ -14,7 +14,9 @@ function M.init()
     gpio.mode(ENABLE, gpio.OUTPUT)
     gpio.mode(DIR, gpio.OUTPUT)
     gpio.mode(SLEEP, gpio.OUTPUT)
-    gpio.write(SLEEP, gpio.LOW)   
+    gpio.write(SLEEP, gpio.LOW)  
+    gpio.write(ENABLE, gpio.LOW)
+    gpio.write(DIR, gpio.HIGH)   
 end
 
 function checkAngle(target_angle)
@@ -48,7 +50,7 @@ function M.turn_to(angle)
      
     local start_time = tmr.now()
     print("start_time " .. start_time)
-    tmr.alarm(0, 200, tmr.ALARM_AUTO, function ()
+    tmr.alarm(0, 10, tmr.ALARM_AUTO, function ()
         local delta = bit.band(0x7ffffffe, tmr.now() - start_time)
 
         adc_value = adc.read(0)
@@ -59,7 +61,7 @@ function M.turn_to(angle)
             print("adc stop")
             stop = true
         end
-        if adc_value > SOFT_ADC_LIMIT and delta > M.HARD_TIME then
+        if adc_value > SOFT_ADC_LIMIT and delta > HARD_TIME then
             print("adc + delta stop")
             stop = true
         end
@@ -77,7 +79,7 @@ function M.turn_to(angle)
         
         if stop then
             gpio.write(ENABLE, gpio.LOW)
-            gpio.write(DIR, gpio.LOW)
+            gpio.write(DIR, gpio.HIGH)
             gpio.write(SLEEP, gpio.LOW)
             print("motor stopped")
             
@@ -108,14 +110,14 @@ function M.turn(duration, direction)
             print("adc stop")
             break
         end
-        if adc_value > SOFT_ADC_LIMIT and delta > M.HARD_TIME then
+        if adc_value > SOFT_ADC_LIMIT and delta > HARD_TIME then
             print("adc + delta stop")
             break
         end
     until delta > duration * 1000
 
     gpio.write(ENABLE, gpio.LOW)
-    gpio.write(DIR, gpio.LOW)
+    gpio.write(DIR, gpio.HIGH)
     gpio.write(SLEEP, gpio.LOW)
 end
 

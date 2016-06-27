@@ -21,6 +21,7 @@ function M.handle(client, request)
     buf = buf.."<p>Tune: <a href=\"?cmd=TUNECLOSE\"><button>Close</button></a>&nbsp;<a href=\"?cmd=TUNEOPEN\"><button>Open</button></a></p>";
     buf = buf.."<p>Sleep <a href=\"?cmd=MS\"><button>Modem Sleep</button></a>&nbsp;<a href=\"?cmd=LS\"><button>Light Sleep</button></a>&nbsp;<a href=\"?cmd=DS\"><button>Deep Sleep</button></a></p>";
     buf = buf.."<p>ADC: ".. adc.read(0) .. "</p>"
+   -- buf = buf.."<p>ADXL: ".. require("adxl").angle() .. "</p>"
     client:send(buf)
     client:close()
 
