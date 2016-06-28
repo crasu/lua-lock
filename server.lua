@@ -6,6 +6,7 @@ function init()
     print(wifi.sta.getip())
 
     require("motor").init()
+    require("keys").init()
 end
 
 init()

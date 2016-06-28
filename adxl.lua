@@ -78,7 +78,7 @@ function positions()
     
     --4mg/LSB, multiply by 4, should divide by 1000
     Xaxis=Xaxis*4 + 5650
-    Yaxis=Yaxis*4 + 5750
+    Yaxis=Yaxis*4 + 5770
     Zaxis=Zaxis*4 + 4500
     
     return {["X"] = Xaxis, ["Y"] = Yaxis, ["Z"] = Zaxis}
@@ -88,8 +88,8 @@ function M.angle() -- approx angle +90 / -90
     package.loaded[module]=nil
     
     local val = positions()
-    local Y = math.max(math.min(val["Y"], 990), -990)
-    return Y / -11
+    local Y = math.max(math.min(val["Y"], 1080), -1080)
+    return Y / -12
 end
 
 return M

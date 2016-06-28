@@ -6,7 +6,7 @@ local SLEEP = config.SLEEP_PIN
 local HARD_ADC_LIMIT = 160 -- 3200 mA
 local SOFT_ADC_LIMIT = 120 -- 2400 mA
 local HARD_TIME = 150 * 1000 -- 150 ms
-local MAX_DURATION = 2000 * 1000 -- 2000 ms
+local MAX_DURATION = 3500 * 1000 -- 2000 ms
 
 function M.init()
     package.loaded[module]=nil
