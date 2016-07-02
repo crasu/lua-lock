@@ -1,8 +1,23 @@
 function init()
     local config = require("config")
+    local sleephours = 4
     wifi.setmode(wifi.STATION)
     wifi.sta.config(config.SSID, config.PASS)
-    --wifi.sleeptype(wifi.LIGHT_SLEEP)
+
+    tmr.alarm(1, 10*60*1000, tmr.ALARM_SINGLE, function()
+        print("light sleep serial unstable ...")
+        wifi.sleeptype(wifi.LIGHT_SLEEP)
+    end)
+
+    tmr.alarm(2, 3600*1000, tmr.ALARM_AUTO, function()
+        sleephours = sleephours - 1
+
+        if sleephours < 1 then
+            print("Going to a deep sleep ...")
+            wifi.sleeptype(node.dsleep(0))                 
+        end
+    end)
+    
     print(wifi.sta.getip())
 
     require("motor").init()

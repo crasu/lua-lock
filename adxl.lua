@@ -78,7 +78,7 @@ function positions()
     
     --4mg/LSB, multiply by 4, should divide by 1000
     Xaxis=Xaxis*4 + 5650
-    Yaxis=Yaxis*4 + 5770
+    Yaxis=Yaxis*4 + 5790
     Zaxis=Zaxis*4 + 4500
     
     return {["X"] = Xaxis, ["Y"] = Yaxis, ["Z"] = Zaxis}

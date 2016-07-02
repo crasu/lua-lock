@@ -39,12 +39,13 @@ end
 
 function M.turn_to(angle)
     package.loaded[module]=nil
-    require("adxl").enable()
-
-    local enable, direction = checkAngle(angle)
-    if not(enable) then return end 
     
     gpio.write(SLEEP, gpio.HIGH)
+    require("adxl").enable()
+ 
+    local enable, direction = checkAngle(angle)
+    if not(enable) then return end 
+   
     gpio.write(ENABLE, gpio.HIGH)
     set_direction(direction)
      
