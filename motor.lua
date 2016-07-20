@@ -22,7 +22,7 @@ end
 function checkAngle(target_angle)
     local current_angle=require("adxl").angle()
     print("current angle " .. current_angle)
-    if math.abs(target_angle - current_angle) < 5 then
+    if math.abs(target_angle - current_angle) < 6 then
         return false, false
     end
 
