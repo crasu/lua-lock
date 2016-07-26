@@ -1,21 +1,12 @@
 function init()
     local config = require("config")
-    local sleephours = 4
+
     wifi.setmode(wifi.STATION)
     wifi.sta.config(config.SSID, config.PASS)
 
     tmr.alarm(1, 10*60*1000, tmr.ALARM_SINGLE, function()
         print("light sleep serial unstable ...")
         wifi.sleeptype(wifi.LIGHT_SLEEP)
-    end)
-
-    tmr.alarm(2, 3600*1000, tmr.ALARM_AUTO, function()
-        sleephours = sleephours - 1
-
-        if sleephours < 1 then
-            print("Going to a deep sleep ...")
-            wifi.sleeptype(node.dsleep(0))                 
-        end
     end)
     
     print(wifi.sta.getip())
@@ -32,21 +23,21 @@ srv:listen(80, function(conn)
         local cmd = require("connection").handle(client, request)
         collectgarbage()
         local motor = require("motor")
-        if(cmd == "CLOSE")then
+        if(cmd == "close")then
             motor.turn_to(90)
-        elseif(cmd == "OPEN")then
+        elseif(cmd == "open")then
             motor.turn_to(0)
-        elseif(cmd == "TILT")then
+        elseif(cmd == "tilt")then
             motor.turn_to(-90)
-        elseif(cmd == "TUNECLOSE")then
+        elseif(cmd == "tuneclose")then
             motor.turn(150, gpio.HIGH)
-        elseif(cmd == "TUNEOPEN")then
+        elseif(cmd == "tuneopen")then
             motor.turn(150, gpio.LOW)
-        elseif(cmd == "MS")then
+        elseif(cmd == "ms")then
             wifi.sleeptype(wifi.MODEM_SLEEP)
-        elseif(cmd == "LS")then
+        elseif(cmd == "ls")then
             wifi.sleeptype(wifi.LIGHT_SLEEP)
-        elseif(cmd == "DS")then
+        elseif(cmd == "ds")then
             wifi.sleeptype(node.dsleep(0))
         end
         collectgarbage()

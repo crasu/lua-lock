@@ -3,7 +3,7 @@ local M, module = {}, ...
 function M.handle(client, request)
     package.loaded[module]=nil
 
-    local buf = "";
+    local buf = ""
     local _, _, method, path, vars = string.find(request, "([A-Z]+) (.+)?(.+) HTTP")
     if(method == nil)then
         _, _, method, path = string.find(request, "([A-Z]+) (.+) HTTP")
@@ -14,18 +14,21 @@ function M.handle(client, request)
             _GET[k] = v
         end
     end
-    buf = buf.."<h1> ESP8266 Web Server</h1>";
-    buf = buf..[[<p>Door: <a href=\"?cmd=CLOSE\"><button>Close</button></a>&nbsp;
-        <a href=\"?cmd=OPEN\"><button>Open</button></a>&nbsp;
-        <a href=\"?cmd=TILT\"><button>Tilt</button></a></p>]];
-    buf = buf.."<p>Tune: <a href=\"?cmd=TUNECLOSE\"><button>Close</button></a>&nbsp;<a href=\"?cmd=TUNEOPEN\"><button>Open</button></a></p>";
-    buf = buf.."<p>Sleep <a href=\"?cmd=MS\"><button>Modem Sleep</button></a>&nbsp;<a href=\"?cmd=LS\"><button>Light Sleep</button></a>&nbsp;<a href=\"?cmd=DS\"><button>Deep Sleep</button></a></p>";
-    buf = buf.."<p>ADC: ".. adc.read(0) .. "</p>"
-   -- buf = buf.."<p>ADXL: ".. require("adxl").angle() .. "</p>"
-    client:send(buf)
+
+    if method == "GET" and path == "/" then
+        file.open("index.html")
+        local data = file.read() 
+        client:send(data)
+    end
+    
+    file.close()
     client:close()
 
-    return _GET.cmd
+    if method == "POST" then
+        return path:gsub("^/", "")
+    else 
+        return nil
+    end
 end
 
 return M

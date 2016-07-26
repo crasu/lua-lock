@@ -1,0 +1,46 @@
+<!DOCTYPE HTML>
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+<style>
+/* RGB 
+PLATINUM: #E2EFDE;
+PASTELBLUE: #AFD0BF;
+DOLPHINGRAY: #808F87;
+WINTERGREENDREAM: #5A7D7C;
+CHARLESTONGREEN: #232C33*/
+.button {
+    display: block;
+    font-size: 20px;
+    padding: 7px;
+    font-family: sans-serif;
+    color: #232C33;
+    text-align: center;
+    width: 100%;
+    color: #E2EFDE;
+    background-color: #5A7D7C;
+    margin: 5px;
+    border-radius: 6px;
+    border-width: 0px;
+}
+.container {
+    margin: 10px;
+    width: 200px;
+    font-size: 20px;
+    font-family: sans-serif;
+    color: #5A7D7C;
+}
+.body {
+    background: #E2EFDE;
+}
+</style>
+<html><body class="body">
+<div class="container">Door: 
+    <button onclick="$.post('/close');" class="button">Close</button>
+    <button onclick="$.post('/open');" class="button">Open</button>
+    <button onclick="$.post('/tilt');" class="button">Tilt</button>
+</div>
+<div class="container">Tune: 
+    <button onclick="$.post('/tuneopen');" class="button">Open</button>
+    <button onclick="$.post('/tuneclose');" class="button">Close</button>
+</div>
+</body></html>
+
