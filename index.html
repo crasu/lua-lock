@@ -1,5 +1,9 @@
 <!DOCTYPE HTML>
-<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+<script>
+function post(url) {
+    fetch(url, { method: "POST" });
+}
+</script>
 <style>
 /* RGB 
 PLATINUM: #E2EFDE;
@@ -31,16 +35,26 @@ CHARLESTONGREEN: #232C33*/
 .body {
     background: #E2EFDE;
 }
+.lock {
+    content: "Read this: ";
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #5A7D7C;
+}
+.lock::before { 
+}
 </style>
 <html><body class="body">
+<div class="lock"></div>
 <div class="container">Door: 
-    <button onclick="$.post('/close');" class="button">Close</button>
-    <button onclick="$.post('/open');" class="button">Open</button>
-    <button onclick="$.post('/tilt');" class="button">Tilt</button>
+    <button onclick="post('/close');" class="button">Close</button>
+    <button onclick="post('/open');" class="button">Open</button>
+    <button onclick="post('/tilt');" class="button">Tilt</button>
 </div>
 <div class="container">Tune: 
-    <button onclick="$.post('/tuneopen');" class="button">Open</button>
-    <button onclick="$.post('/tuneclose');" class="button">Close</button>
+    <button onclick="post('/tuneopen');" class="button">Open</button>
+    <button onclick="post('/tuneclose');" class="button">Close</button>
 </div>
 </body></html>
 
