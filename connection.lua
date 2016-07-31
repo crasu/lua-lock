@@ -3,7 +3,6 @@ local M, module = {}, ...
 function M.handle(client, request)
     package.loaded[module]=nil
 
-    local buf = ""
     local _, _, method, path, vars = string.find(request, "([A-Z]+) (.+)?(.+) HTTP")
     if(method == nil)then
         _, _, method, path = string.find(request, "([A-Z]+) (.+) HTTP")
@@ -16,19 +15,29 @@ function M.handle(client, request)
     end
 
     if method == "GET" and path == "/" then
-        file.open("index.html")
-        local data = file.read() 
-        client:send(data)
+        file.open("index.min.html")
+        local buf = "HTTP/1.1 200 OK\n\n"
+        buf = buf .. file.read() 
+        client:send(buf)
+        file.close()
     end
-    
-    file.close()
-    client:close()
+
+    if method == "GET" and path == "/angle" then
+        local buf = "HTTP/1.1 200 OK\n\n"
+        buf = buf .. "Content-Type: application/json'\n"
+        buf = buf .. "27\n"
+        client:send(buf)
+    end
 
     if method == "POST" then
-        return path:gsub("^/", "")
-    else 
-        return nil
+        local buf = "HTTP/1.1 200 OK\n\n"
+        buf = buf .. "Content-Type: text/html'\n"
+        client:send(buf)
     end
+    
+    client:close()
+
+    return method, path
 end
 
 return M
