@@ -89,7 +89,10 @@ function M.angle() -- approx angle +90 / -90
     
     local val = positions()
     local Y = math.max(math.min(val["Y"], 1080), -1080)
-    return Y / -13
+
+    local angle = Y / -13
+    saveAngle(angle)
+    return angle
 end
 
 return M

@@ -3,6 +3,14 @@
 function post(url) {
     fetch(url, { method: "POST" });
 }
+function update() {
+    var degree = fetch("/angle").then(function(response) {
+        response.json().then(function(json) {
+            document.getElementsByClassName("lock")[0].style.transform="rotate(" + json + "deg)"
+        })
+    })
+}
+update();
 </script>
 <style>
 /* RGB 
@@ -35,18 +43,33 @@ CHARLESTONGREEN: #232C33*/
 .body {
     background: #E2EFDE;
 }
-.lock {
-    content: "Read this: ";
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
+.lock::before, .lock::after {
+    content: " ";
     background-color: #5A7D7C;
+    display: block;
+    position: absolute;
 }
 .lock::before { 
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin: 50px auto auto 85px;
+}
+.lock::after {
+    width: 40px;
+    height: 10px;
+    margin: 55px auto auto 55px;
+}
+.lock {
+    display: block;
+    height: 100px;
+    width: 200px;
+    transform: rotate(0deg);
+    transform-origin: center center;
 }
 </style>
 <html><body class="body">
-<div class="lock"></div>
+<div class="lock" onclick="update();"></div>
 <div class="container">Door: 
     <button onclick="post('/close');" class="button">Close</button>
     <button onclick="post('/open');" class="button">Open</button>

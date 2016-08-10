@@ -13,7 +13,25 @@ function init()
 
     require("motor").init()
     require("keys").init()
+    
+    initAngle(config)
 end
+
+saved_angle = -100
+function initAngle(config)
+    gpio.write(config.ENABLE_PIN, gpio.HIGH)
+    print("inital angle " .. require("adxl").angle())
+    gpio.write(config.ENABLE_PIN, gpio.LOW)
+end
+
+function saveAngle(angle)
+    saved_angle=angle
+end
+
+function getAngle()
+    return saved_angle
+end
+
 
 init()
 
@@ -24,7 +42,6 @@ srv:listen(80, function(conn)
         collectgarbage()
 
         if method == "POST" then
-            
             local motor = require("motor")
             if(path == "/close")then
                 motor.turn_to(90)

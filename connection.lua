@@ -23,15 +23,15 @@ function M.handle(client, request)
     end
 
     if method == "GET" and path == "/angle" then
-        local buf = "HTTP/1.1 200 OK\n\n"
-        buf = buf .. "Content-Type: application/json'\n"
-        buf = buf .. "27\n"
+        local buf = "HTTP/1.1 200 OK\n"
+        buf = buf .. "Content-Type: application/json\n\n"
+        buf = buf .. getAngle()
         client:send(buf)
     end
 
     if method == "POST" then
-        local buf = "HTTP/1.1 200 OK\n\n"
-        buf = buf .. "Content-Type: text/html'\n"
+        local buf = "HTTP/1.1 200 OK\n"
+        buf = buf .. "Content-Type: text/html\n\n"
         client:send(buf)
     end
     
