@@ -1,6 +1,7 @@
 <!DOCTYPE HTML>
 <script>
 function post(url) {
+    window.setTimeout(update, 3000);
     fetch(url, { method: "POST" });
 }
 function update() {
