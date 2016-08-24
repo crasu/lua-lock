@@ -3,9 +3,13 @@ local module = {}, ...
 return {
     SSID = "xxx",
     PASS = "xxx",
-    SDA_PIN = 5,
-    SCL_PIN = 6,
-    ENABLE_PIN = 2,
-    DIR_PIN = 1,
-    SLEEP_PIN = 7
+    HTTP_AUTH = "aHR0cHdhdGNoOmY="
+    ENABLE_PIN = 8, -- 15
+    DIR_PIN = 4, -- 2
+    SCL_PIN = 2, -- 4
+    SDA_PIN = 1, -- 5
+    CLOSE_PIN = 7, -- 13
+    OPEN_PIN = 6, -- 12
+    TILT_PIN = 5, -- 14
+    SLEEP_PIN = 0 -- 16
 }
