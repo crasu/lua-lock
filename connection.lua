@@ -14,12 +14,30 @@ function M.handle(client, request)
         end
     end
 
+    local http_auth = string.find(request, "Authorization: Basic (.+)") 
+    if http_auth == require("config").HTTP_AUTH then
+        local buf = "HTTP/1.1 401 Permission denied\n"
+        client:send(buf)
+        client:close()
+        return 401, nil, nil
+    end
+
     if method == "GET" and path == "/" then
         file.open("index.min.html")
         local buf = "HTTP/1.1 200 OK\n\n"
         buf = buf .. file.read() 
-        client:send(buf)
-        file.close()
+
+        function sendMore(client)
+            local buf = file.read()
+            if buf == nil then
+                file.close()
+                client:close()
+            else
+                client:send(buf, sendMore)
+            end
+        end
+
+        client:send(buf, sendMore)
     end
 
     if method == "GET" and path == "/angle" then
@@ -27,17 +45,18 @@ function M.handle(client, request)
         buf = buf .. "Content-Type: application/json\n\n"
         buf = buf .. getAngle()
         client:send(buf)
+        client:close()
     end
 
     if method == "POST" then
         local buf = "HTTP/1.1 200 OK\n"
         buf = buf .. "Content-Type: text/html\n\n"
         client:send(buf)
+        client:close()
     end
-    
-    client:close()
 
-    return method, path
+    return 200, method, path
 end
+
 
 return M

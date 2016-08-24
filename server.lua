@@ -13,16 +13,9 @@ function init()
 
     require("motor").init()
     require("keys").init()
-    
-    initAngle(config)
 end
 
-saved_angle = -100
-function initAngle(config)
-    gpio.write(config.ENABLE_PIN, gpio.HIGH)
-    print("inital angle " .. require("adxl").angle())
-    gpio.write(config.ENABLE_PIN, gpio.LOW)
-end
+saved_angle = -180
 
 function saveAngle(angle)
     saved_angle=angle
@@ -38,10 +31,10 @@ init()
 srv=net.createServer(net.TCP)
 srv:listen(80, function(conn)
     conn:on("receive", function(client, request)
-        local method, path = require("connection").handle(client, request)
+        local code, method, path = require("connection").handle(client, request)
         collectgarbage()
 
-        if method == "POST" then
+        if method == "POST" and code == 200 then
             local motor = require("motor")
             if(path == "/close")then
                 motor.turn_to(90)
