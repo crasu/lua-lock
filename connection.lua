@@ -14,9 +14,10 @@ function M.handle(client, request)
         end
     end
 
-    local http_auth = string.find(request, "Authorization: Basic (.+)") 
-    if http_auth == require("config").HTTP_AUTH then
-        local buf = "HTTP/1.1 401 Permission denied\n"
+    local http_auth = require("config").HTTP_AUTH
+    if not(string.match(request, "Authorization: Basic " .. http_auth)) then
+        local buf = "HTTP/1.0 401 Access Denied\n"
+        buf = buf .. "WWW-Authenticate: Basic realm=\"lua-lock\""
         client:send(buf)
         client:close()
         return 401, nil, nil
@@ -41,7 +42,7 @@ function M.handle(client, request)
     end
 
     if method == "GET" and path == "/angle" then
-        local buf = "HTTP/1.1 200 OK\n"
+        local buf = "HTTP/1.0 200 OK\n"
         buf = buf .. "Content-Type: application/json\n\n"
         buf = buf .. getAngle()
         client:send(buf)
@@ -49,7 +50,7 @@ function M.handle(client, request)
     end
 
     if method == "POST" then
-        local buf = "HTTP/1.1 200 OK\n"
+        local buf = "HTTP/1.0 200 OK\n"
         buf = buf .. "Content-Type: text/html\n\n"
         client:send(buf)
         client:close()
