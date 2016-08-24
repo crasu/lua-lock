@@ -7,7 +7,8 @@ function post(url) {
 function update() {
     var degree = fetch("/angle").then(function(response) {
         response.json().then(function(json) {
-            document.getElementsByClassName("lock")[0].style.transform="rotate(" + json + "deg)"
+            var angle = json * -1;
+            document.getElementsByClassName("lock")[0].style.transform="rotate(" + angle + "deg)"
         })
     })
 }
@@ -23,7 +24,7 @@ CHARLESTONGREEN: #232C33*/
 .button {
     display: block;
     font-size: 20px;
-    padding: 7px;
+    padding: 20px;
     font-family: sans-serif;
     text-align: center;
     width: 100%;
@@ -35,7 +36,7 @@ CHARLESTONGREEN: #232C33*/
 }
 .container {
     margin: 10px;
-    width: 200px;
+    width: 900px;
     font-size: 20px;
     font-family: sans-serif;
     color: #5A7D7C;
