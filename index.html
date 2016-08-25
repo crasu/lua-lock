@@ -2,10 +2,10 @@
 <script>
 function post(url) {
     window.setTimeout(update, 3000);
-    fetch(url, { method: "POST" });
+    fetch(url, { method: "POST", credentials:"same-origin" });
 }
 function update() {
-    var degree = fetch("/angle").then(function(response) {
+    var degree = fetch("/angle", {credentials:"same-origin"}).then(function(response) {
         response.json().then(function(json) {
             var angle = json * -1;
             document.getElementsByClassName("lock")[0].style.transform="rotate(" + angle + "deg)"
