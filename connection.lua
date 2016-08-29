@@ -17,7 +17,8 @@ function M.handle(client, request)
     local http_auth = require("config").HTTP_AUTH
     if not(string.match(request, "Authorization: Basic " .. http_auth)) then
         local buf = "HTTP/1.0 401 Access Denied\n"
-        buf = buf .. "WWW-Authenticate: Basic realm=\"lua-lock\""
+        buf = buf .. "WWW-Authenticate: Basic realm=\"lua-lock\"\n"
+        buf = buf .. "Content-Length: 0\n"
         client:send(buf)
         client:close()
         return 401, nil, nil
