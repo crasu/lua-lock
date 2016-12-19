@@ -10,6 +10,12 @@ local MAX_DURATION = 3500 * 1000 -- 2000 ms
 
 function M.init()
     package.loaded[module]=nil
+
+    if adc.force_init_mode(adc.INIT_ADC)
+    then
+      node.restart()
+      return 
+    end
     
     gpio.mode(ENABLE, gpio.OUTPUT)
     gpio.mode(DIR, gpio.OUTPUT)
