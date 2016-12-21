@@ -28,22 +28,36 @@ function M.init()
     gpio.mode(CLOSE, gpio.INT, gpio.PULLUP)
     gpio.mode(TILT, gpio.INT, gpio.PULLUP)
 
+    function detect_spike(pin)
+        tmr.delay(300)
+        local level = gpio.read(pin)
+        if not(level == 0) then
+            print "spike detected"
+        end
+
+        return not(level == 0)
+    end
+
     gpio.trig(OPEN, "down", function ()
         if not(lock()) then return end
+        if detect_spike(OPEN) then return end
+        
         print("open triggered")
         require("motor").turn_to(0)
     end)
 
-    gpio.trig(CLOSE, "up", function ()
+    gpio.trig(CLOSE, "down", function ()
         if not(lock()) then return end
+        if detect_spike(CLOSE) then return end
         
         print("close triggered")
         require("motor").turn_to(90)
     end)
     
-    gpio.trig(TILT, "up", function ()
+    gpio.trig(TILT, "down", function ()
         if not(lock()) then return end
-        
+        if detect_spike(TILT) then return end
+
         print("tilt triggered")
         require("motor").turn_to(-90)
     end)
