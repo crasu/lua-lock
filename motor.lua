@@ -1,11 +1,13 @@
 local M, module = {}, ...
 local config = require("config")
+local average_current = 0
 local ENABLE = config.ENABLE_PIN
 local DIR = config.DIR_PIN
 local SLEEP = config.SLEEP_PIN
-local HARD_ADC_LIMIT = 160 -- 3200 mA
-local SOFT_ADC_LIMIT = 120 -- 2400 mA
-local HARD_TIME = 150 * 1000 -- 150 ms
+local STARTUP_ADC_LIMIT = 256 -- 3200 mA
+local SINGLE_ADC_LIMIT = 192 -- 2400 mA
+local AVERAGE_ADC_LIMIT = 136 -- 850 mA
+local STARTUP_TIME = 150 * 1000 -- 150 ms
 local MAX_DURATION = 3500 * 1000 -- 2000 ms
 
 function M.init()
@@ -54,6 +56,8 @@ function M.turn_to(angle)
    
     gpio.write(ENABLE, gpio.HIGH)
     set_direction(direction)
+
+    average_current = 0
      
     local start_time = tmr.now()
     print("start_time " .. start_time)
@@ -61,15 +65,21 @@ function M.turn_to(angle)
         local delta = bit.band(0x7ffffffe, tmr.now() - start_time)
 
         adc_value = adc.read(0)
-        print("ADC " .. adc_value .. " delta " .. delta)
+
+        average_current = (adc_value + average_current * 4)/5
+        print("ADC " .. adc_value .. " avg cur " .. average_current .. " delta " .. delta)
 
         local stop = false
-        if adc_value > HARD_ADC_LIMIT then
+        if adc_value > STARTUP_ADC_LIMIT then
             print("adc stop")
             stop = true
         end
-        if adc_value > SOFT_ADC_LIMIT and delta > HARD_TIME then
+        if adc_value > SINGLE_ADC_LIMIT and delta > STARTUP_TIME then
             print("adc + delta stop")
+            stop = true
+        end
+        if average_current > AVERAGE_ADC_LIMIT and delta > STARTUP_TIME then
+            print("average stop")
             stop = true
         end
         if delta > MAX_DURATION then
@@ -113,11 +123,11 @@ function M.turn(duration, direction)
         adc_value = adc.read(0)
         print("ADC " .. adc_value .. " delta " .. delta)
 
-        if adc_value > HARD_ADC_LIMIT then
+        if adc_value > STARTUP_ADC_LIMIT then
             print("adc stop")
             break
         end
-        if adc_value > SOFT_ADC_LIMIT and delta > HARD_TIME then
+        if adc_value > SINGLE_ADC_LIMIT and delta > STARTUP_TIME then
             print("adc + delta stop")
             break
         end
