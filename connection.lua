@@ -20,7 +20,7 @@ function M.handle(client, request)
         buf = buf .. "WWW-Authenticate: Basic realm=\"lua-lock\"\n"
         buf = buf .. "Content-Length: 0\n"
         client:send(buf)
-        client:close()
+        client:on("sent", function(sck) sck:close() end)
         return 401, nil, nil
     end
 
@@ -47,14 +47,14 @@ function M.handle(client, request)
         buf = buf .. "Content-Type: application/json\n\n"
         buf = buf .. getAngle()
         client:send(buf)
-        client:close()
+        client:on("sent", function(sck) sck:close() end)
     end
 
     if method == "POST" then
         local buf = "HTTP/1.0 200 OK\n"
         buf = buf .. "Content-Type: text/html\n\n"
         client:send(buf)
-        client:close()
+        client:on("sent", function(sck) sck:close() end)
     end
 
     return 200, method, path
