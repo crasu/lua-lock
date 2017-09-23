@@ -1,7 +1,7 @@
 # lua-lock
 
-./anybaud /dev/ttyUSB0 74880
-cu --nostop -s 115200 -l /dev/ttyUSB0
+    ./anybaud /dev/ttyUSB0 74880
+    cu --nostop -s 115200 -l /dev/ttyUSB0
 
 ## Flashing
 
